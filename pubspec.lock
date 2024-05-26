@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.5.0"
+  art_sweetalert:
+    dependency: "direct main"
+    description:
+      name: art_sweetalert
+      sha256: "64dd68fc8648197e2b8201b3d28e2e9ec41c0883a05e18be21386ec6435d2b54"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
   async:
     dependency: transitive
     description:
@@ -185,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.6"
+  dynamic_tabbar:
+    dependency: "direct main"
+    description:
+      name: dynamic_tabbar
+      sha256: "3e3cd28de6d4d9002623f630e0b86218b8b88d22864f30a1bf79b5edb6c615d0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7"
   equatable:
     dependency: transitive
     description:
@@ -342,6 +358,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      sha256: "673403d2eeef1f9e8483bd6d8d92aae73b1d8bd71f382bc3930f699c731bc27c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -352,6 +376,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      sha256: "275ff26905134bcb59417cf60ad979136f1f8257f2f449914b2c3e05bbb4cd6f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.7.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -464,6 +496,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
+  insta_image_viewer:
+    dependency: "direct main"
+    description:
+      name: insta_image_viewer
+      sha256: "5c3150415d19945ee7eb9a986ed636219e384164e53a4854e8c6f3dbb3b3e197"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   io:
     dependency: transitive
     description:
@@ -821,6 +861,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  we_slide:
+    dependency: "direct main"
+    description:
+      name: we_slide
+      sha256: b1baea1c5be157f69dc5260cdb63ce80927e0f17ff6dbf4ef8d4b162ae3efcf8
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   web:
     dependency: transitive
     description:

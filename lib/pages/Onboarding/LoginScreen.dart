@@ -31,21 +31,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
     Map<String, dynamic> body = {
       'username': username,
-      'pass': password,
+      'password': password,
     };
     apiService
         .loginRequest(body)
         .then((value) => {
               if (value['message'] == "Success")
                 {
-                  if (value['data']['needVerify'])
-                    {Navigator.pushReplacementNamed(context, '/verify')}
-                  else
-                    {
-                      // Navigator.pushReplacementNamed(
-                      //     context, '/splash')
-                      fetchDetails()
-                    }
+                    {Navigator.pushReplacementNamed(context, '/usersplash')}
+
                 }
               else if (value['error'] == "Unauthorized")
                 {
@@ -259,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
                           child: MaterialButton(
-                            onPressed: () async {},
+                            onPressed: _login,
                             color: Constants.mainBlueColor,
                             elevation: 0,
                             shape: RoundedRectangleBorder(

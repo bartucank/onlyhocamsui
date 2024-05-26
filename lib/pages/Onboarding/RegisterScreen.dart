@@ -14,8 +14,8 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  TextEditingController _usernameController = TextEditingController();
   TextEditingController _nameSurnameController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _loading = false;
@@ -34,8 +34,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = _passwordController.text;
     Map<String, dynamic> body = {
       'username': username,
-      'pass': password,
-      'nameSurname': nameSurname,
+      'password': password,
+      'name': nameSurname,
       'email': email,
     };
     apiService
@@ -43,10 +43,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         .then((value) => {
               if (value['message'] == "Success")
                 {
-                  if (value['data']['needVerify'])
-                    {Navigator.pushReplacementNamed(context, '/verify')}
+                  if (value['data']['role']=="USER")
+                    {Navigator.pushReplacementNamed(context, '/usersplash')}
                   else
-                    {Navigator.pushReplacementNamed(context, '/splash')}
+                    {Navigator.pushReplacementNamed(context, '/adminsplash')}
                 }
               else
                 {
@@ -69,6 +69,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+    checkLogin();
+  }
+  void checkLogin()async{
+    String? a = await apiService.getJwtToken();
+    if(a != null && a != "NOT_FOUND"){
+
+      Navigator.pushReplacementNamed(context, '/usersplash');
+    }
+
   }
 
   @override
@@ -335,7 +344,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
                           child: MaterialButton(
-                            onPressed: () async {},
+                            onPressed: _register,
                             color: Constants.mainBlueColor,
                             elevation: 0,
                             shape: RoundedRectangleBorder(

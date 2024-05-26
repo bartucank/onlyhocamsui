@@ -1,12 +1,18 @@
+import 'dart:typed_data';
+
 import 'package:json_annotation/json_annotation.dart';
+
+import 'Uint8ListConverter.dart';
 
 part 'DocumentDTO.g.dart';
 @JsonSerializable(explicitToJson: true)
 class DocumentDTO {
   int? id;
-  string? fileName;
-  string? fileType;
+  String? fileName;
+  String? fileType;
   String? type;
+
+  @Uint8ListConverter()
   Uint8List? data;
 
 

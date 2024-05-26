@@ -3,8 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 part 'StatusDTO.g.dart';
 @JsonSerializable(explicitToJson: true)
 class StatusDTO {
-  string? statusCode;
-  string? msg;
+  String? statusCode;
+  String? msg;
 
 
 

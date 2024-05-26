@@ -6,7 +6,7 @@ part 'CommentDTO.g.dart';
 @JsonSerializable(explicitToJson: true)
 class CommentDTO {
   int? id;
-  string? content;
+  String? content;
   UserDTO? user;
   int? postId;
 

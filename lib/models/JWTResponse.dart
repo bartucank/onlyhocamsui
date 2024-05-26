@@ -3,8 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 part 'JWTResponse.g.dart';
 @JsonSerializable(explicitToJson: true)
 class JWTResponse {
-  string? jwt;
-  string? role;
+  String? jwt;
+  String? role;
 
 
 

@@ -7,7 +7,6 @@ class UserDTO {
   String? name;
   String? role;
   String? roleStr;
-  double credit;
   String? email;
   String? username;
 

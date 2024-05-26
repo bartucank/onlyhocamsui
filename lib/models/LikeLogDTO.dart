@@ -1,12 +1,14 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'UserDTO.dart';
+
 part 'LikeLogDTO.g.dart';
 @JsonSerializable(explicitToJson: true)
 class LikeLogDTO {
   int? id;
   UserDTO? user;
   int? postId;
-  string? type;
+  String? type;
 
 
 

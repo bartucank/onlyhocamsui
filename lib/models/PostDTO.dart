@@ -1,15 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'CommentDTO.dart';
+import 'DocumentDTO.dart';
+import 'LikeLogDTO.dart';
+import 'UserDTO.dart';
 part 'PostDTO.g.dart';
 @JsonSerializable(explicitToJson: true)
 class PostDTO {
   int? id;
-  string? content;
-  string? publishDate;
-  string? formattedDate;
+  String? content;
+  String? publishDate;
+  String? formattedDate;
   UserDTO? user;
   int? categoryId;
-  string? categoryName;
+  String? categoryName;
   List<DocumentDTO>? documents;
   List<CommentDTO>? comments;
   List<LikeLogDTO>? actions;

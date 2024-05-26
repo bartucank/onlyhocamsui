@@ -17,9 +17,9 @@ UserDTO _$UserDTOFromJson(Map<String, dynamic> json) => UserDTO(
 
 Map<String, dynamic> _$UserDTOToJson(UserDTO instance) => <String, dynamic>{
       'id': instance.id,
+      'name': instance.name,
       'role': instance.role,
       'roleStr': instance.roleStr,
-      'name': instance.name,
-      'username': instance.username,
       'email': instance.email,
+      'username': instance.username,
     };
