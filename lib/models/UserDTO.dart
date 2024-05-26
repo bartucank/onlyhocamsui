@@ -4,11 +4,14 @@ part 'UserDTO.g.dart';
 @JsonSerializable(explicitToJson: true)
 class UserDTO {
   int? id;
+  String? name;
   String? role;
   String? roleStr;
-  String? name;
-  String? username;
+  double credit;
   String? email;
+  String? username;
+
+
 
 
 
