@@ -24,6 +24,22 @@ class ApiService {
       return "NOT_FOUND";
     }
   }
+  Future<String?> getUserId() async {
+    try {
+      final jwtToken = await storage.read(key: 'userId');
+      return jwtToken;
+    } catch (error) {
+      return "NOT_FOUND";
+    }
+  }
+  Future<String?> getRole() async {
+    try {
+      final jwtToken = await storage.read(key: 'role');
+      return jwtToken;
+    } catch (error) {
+      return "NOT_FOUND";
+    }
+  }
 
   Future<void> saveJwtToken(String token) async {
     await storage.write(key: 'jwt_token', value: token);
@@ -35,6 +51,9 @@ class ApiService {
 
   Future<void> saveRole(String token) async {
     await storage.write(key: 'role', value: token);
+  }
+  Future<void> saveUserId(int token) async {
+    await storage.write(key: 'userId', value: token.toString());
   }
 
   Future<Map<String, dynamic>> loginRequest(dynamic body) async {
@@ -48,6 +67,9 @@ class ApiService {
     Map<String, dynamic> jsonResponse = jsonDecode(response.body);
     if (response.statusCode == 200) {
       await saveJwtToken(jsonResponse['data']['jwt']);
+      await saveRole(jsonResponse['data']['role']);
+
+      await getUserDetails();
     }
     return jsonResponse;
   }
@@ -65,6 +87,8 @@ class ApiService {
     if (response.statusCode == 200) {
       await saveJwtToken(jsonResponse['data']['jwt']);
       await saveRole(jsonResponse['data']['role']);
+
+      await getUserDetails();
     }
     return jsonResponse;
   }
@@ -82,7 +106,9 @@ class ApiService {
       throw CustomException("NEED_LOGIN");
     }
     Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-    return UserDTO.fromJson(jsonResponse['data']);
+    UserDTO result = UserDTO.fromJson(jsonResponse['data']);
+    saveUserId(result.id!);
+    return result;
   }
 
   Future<CategoryDTOListResponse> getCategories() async{
@@ -105,6 +131,7 @@ class ApiService {
 
   Future<PostDTOListResponse> getPosts(int limit, int offset, int id) async {
     final jwtToken = await getJwtToken();
+    print("bis");
     final response = await http.get(
       Uri.parse('${Constants.apiBaseUrl}/api/user/post?offset=$offset&limit=$limit&categoryId=$id'),
       headers: {

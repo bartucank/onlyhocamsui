@@ -21,6 +21,7 @@ dependencies:
   flutter_slidable: ^3.0.1
   font_awesome_flutter: ^10.7.0
   insta_image_viewer: ^1.0.4
+  comment_tree: ^0.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

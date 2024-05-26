@@ -70,7 +70,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void fetchDetails() async {
-    userFuture = apiService.getUserDetails();
     userFuture.then((user) {
       CacheManager.saveUserDTOToCache(user);
       if (user.role == 'ADMIN') {

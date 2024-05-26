@@ -56,11 +56,6 @@ class _PostPageState extends State<PostPage>
       print(jwtToken);
       currentUserId = int.tryParse(jwtToken!) ?? -1;
     }
-    final role = await apiService.getRole();
-    if(role != "NOT_FOUND"){
-      print(role);
-      currentUserRole = role!;
-    }
     fetchFirstPosts();
 
   }
@@ -152,6 +147,12 @@ class _PostPageState extends State<PostPage>
   }
 
   void filter() async {
+    if(isLoading){
+      return;
+    }
+    setState(() {
+      isLoading = false;
+    });
     setState(() {
       offset = -20;
       limit = 20;
@@ -165,6 +166,7 @@ class _PostPageState extends State<PostPage>
     }
     print("hereee"+_selectedValue.id!.toString());
     setState(() {
+      isLoading = false;
       getfilteredposts();
     });
 
@@ -189,7 +191,6 @@ class _PostPageState extends State<PostPage>
   bool isLoading = false;
   final double _panelMinSize = 70.0;
   int currentUserId = -1;
-  String currentUserRole = "USER";
 
   final listcontroller = ScrollController();
   @override
@@ -323,7 +324,7 @@ class _PostPageState extends State<PostPage>
             BottomNavigationBarItem(
                 icon: Icon(Icons.search), label: 'Filter'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.clear), label: 'Coming Soon'),
+                icon: Icon(Icons.clear), label: 'Clear Filters'),
           ],
           elevation: 0,
           backgroundColor: Constants.mainBlueColor,
@@ -336,7 +337,12 @@ class _PostPageState extends State<PostPage>
               weSlideController.show();
             }
             if(index == 1){
-
+              if(!isLoading){
+                setState(() {
+                  isLoading = true;
+                });
+                // clear();
+              }
             }
           },
         ),
@@ -356,12 +362,6 @@ class _PostPageState extends State<PostPage>
                   int dislikecount = 0;
                   bool isLiked = false;
                   bool isDisliked = false;
-                  bool isOwnerOrAdmin = false;
-                  if(currentUserRole == "ADMIN"){
-                    isOwnerOrAdmin = true;
-                  }else if(currentbook.user!.id! == currentUserId){
-                    isOwnerOrAdmin = true;
-                  }
                   currentbook.actions?.forEach((element) {
                     if(element.type == "LIKE"){
                       likecount++;
@@ -373,7 +373,7 @@ class _PostPageState extends State<PostPage>
                       isDisliked = !isLiked;
                     }
                   });
-                  return PostWidget(post:currentbook,likec:likecount,dislikec:dislikecount,isliked:isLiked, isdisliked:isDisliked,candelete:isOwnerOrAdmin);
+                  return PostWidget(post:currentbook,likec:likecount,dislikec:dislikecount,isliked:isLiked, isdisliked:isDisliked);
                 } else {
                   if (!lastList.isEmpty) {
                     return const Padding(
@@ -410,70 +410,20 @@ class CategoryButton extends StatelessWidget {
   }
 }
 
-class PostWidget extends StatefulWidget {
+class PostWidget extends StatelessWidget {
   final PostDTO post;
   final int likec;
   final int dislikec;
   final bool isliked;
   final bool isdisliked;
-  final bool candelete;
 
   PostWidget({
     required this.post,
     required this.likec,
     required this.dislikec,
     required this.isliked,
-    required this.isdisliked,
-    required this.candelete
+    required this.isdisliked
   });
-
-  @override
-  _PostWidgetState createState() => _PostWidgetState();
-}
-
-class _PostWidgetState extends State<PostWidget> {
-  bool isCommentsVisible = false;
-  void _showAddCommentDialog() {
-    final TextEditingController _commentController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _commentController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  focusColor: Constants.mainBlueColor,
-                  fillColor: Constants.mainBlueColor,
-                  hoverColor: Constants.mainBlueColor,
-
-                  hintText: 'Enter your comment',
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                //todo: add comment request
-                Navigator.of(context).pop();
-              },
-              child: Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -486,53 +436,34 @@ class _PostWidgetState extends State<PostWidget> {
             children: <Widget>[
               Row(
                 children: <Widget>[
+                  // CircleAvatar(
+                  //   backgroundImage: AssetImage(post.profileImageUrl),
+                  //   radius: 20.0,
+                  // ),
                   SizedBox(width: 7.0),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(widget.post.user!.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
+                      Text(post.user!.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
                       SizedBox(height: 5.0),
-                      Text(widget.post.formattedDate!, style: TextStyle(fontSize: 11.0)),
+                      Text(post.formattedDate!, style: TextStyle(fontSize: 11.0)),
                     ],
-                  ),
-                  Spacer(),
-                  PopupMenuButton<String>(
-                    onSelected: (String result) {
-                      if (result == 'delete') {
-                        //todo: delete post
-                      }else if(result == 'addcom'){
-
-                        _showAddCommentDialog();
-
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Text('Delete'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'addcom',
-                        child: Text('Add Comment'),
-                      ),
-                    ],
-                    icon: Icon(Icons.more_vert),
                   ),
                 ],
               ),
               Divider(height: 10),
               Align(
                 alignment: Alignment.topLeft,
-                child: Text(widget.post.content!, style: TextStyle(fontSize: 15.0)),
+                child: Text(post.content!, style: TextStyle(fontSize: 15.0)),
               ),
-              if (widget.post.documents != null && widget.post.documents!.isNotEmpty)
+              if (post.documents != null && post.documents!.isNotEmpty)
                 SizedBox(
                   height: 150,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: widget.post.documents!.take(3).map((doc) {
+                      children: post.documents!.take(3).map((doc) {
                         Uint8List? data = doc.data;
                         return data != null
                             ? Padding(
@@ -552,14 +483,14 @@ class _PostWidgetState extends State<PostWidget> {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      Text('${widget.likec} like/s', style: TextStyle(fontSize: 10.0)),
+                      Text('$likec like/s', style: TextStyle(fontSize: 10.0)),
                       Text('  •  '),
-                      Text('${widget.dislikec} dislike/s', style: TextStyle(fontSize: 10.0)),
+                      Text('$dislikec dislike/s', style: TextStyle(fontSize: 10.0)),
                     ],
                   ),
                   Row(
                     children: <Widget>[
-                      Text('${widget.post.comments!.length.toString()} comments  •  ', style: TextStyle(fontSize: 10.0)),
+                      Text('${post.comments!.length.toString()} comments  •  ', style: TextStyle(fontSize: 10.0)),
                     ],
                   ),
                 ],
@@ -571,12 +502,11 @@ class _PostWidgetState extends State<PostWidget> {
                 children: <Widget>[
                   GestureDetector(
                     onTap: () {
-                      //todo: like
                       print("clicked");
                     },
                     child: Row(
                       children: <Widget>[
-                        Icon(FontAwesomeIcons.thumbsUp, size: 20.0, color: widget.isliked ? Colors.green : Colors.black),
+                        Icon(FontAwesomeIcons.thumbsUp, size: 20.0, color: isliked?Colors.green:Colors.black),
                         SizedBox(width: 5.0),
                         Text('Like', style: TextStyle(fontSize: 14.0)),
                       ],
@@ -584,12 +514,11 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      //todo: dislike
                       print("clicked");
                     },
                     child: Row(
                       children: <Widget>[
-                        Icon(FontAwesomeIcons.thumbsDown, size: 20.0, color: widget.isdisliked ? Colors.red : Colors.black),
+                        Icon(FontAwesomeIcons.thumbsDown, size: 20.0, color: isdisliked?Colors.red:Colors.black),
                         SizedBox(width: 5.0),
                         Text('Dislike', style: TextStyle(fontSize: 14.0)),
                       ],
@@ -597,31 +526,18 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        isCommentsVisible = !isCommentsVisible;
-                      });
+                      print("clicked");
                     },
                     child: Row(
                       children: <Widget>[
                         Icon(FontAwesomeIcons.comment, size: 20.0),
                         SizedBox(width: 5.0),
-                        Text('Comments', style: TextStyle(fontSize: 14.0)),
+                        Text('Comment', style: TextStyle(fontSize: 14.0)),
                       ],
                     ),
                   ),
                 ],
-              ),
-              Visibility(
-                visible: isCommentsVisible && widget.post.comments!.isNotEmpty,
-                child: Column(
-                  children: widget.post.comments!.map((comment) {
-                    return ListTile(
-                      title: Text(comment.user!.name!),
-                      subtitle: Text(comment.content!),
-                    );
-                  }).toList(),
-                ),
-              ),
+              )
             ],
           ),
         ),
