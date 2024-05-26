@@ -58,14 +58,40 @@ class _PostPageState extends State<PostPage>
   Future refresh() async {
     setState(() {
       postDTOList.clear();
-    limit = 15;
-    offset = 0;
+    limit = 20;
+    offset = 20;
     });
 
     fetchFirstPosts();
   }
 
   void fetchFirstPosts() async {
+    if(isLoading){
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    setState(() {
+      offset = offset+limit;
+    });
+    try {
+      lastList.clear();
+      PostDTOListResponse response =
+      await apiService.getPosts(limit,offset,_selectedValue.id!);
+      setState(() {
+        postDTOList.addAll(response.data);
+        lastList.addAll(response.data);
+        lastrecievedpost = response.data.length;
+      });
+    } catch (e) {
+      print("Error! $e");
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+  void fetchmoreposts() async {
     if(isLoading){
       return;
     }
@@ -120,8 +146,8 @@ class _PostPageState extends State<PostPage>
       isLoading = false;
     });
     setState(() {
-      offset = -15;
-      limit = 15;
+      offset = -20;
+      limit = 20;
     });
     try {
       lastList.clear();
@@ -142,12 +168,17 @@ class _PostPageState extends State<PostPage>
   void initState() {
     super.initState();
     fetchCategories();
+    listcontroller.addListener(() {
+      if (listcontroller.position.maxScrollExtent == listcontroller.offset) {
+        fetchmoreposts();
+      }
+    });
 
   }
   WeSlideController weSlideController = WeSlideController();
   int page = -1;
-  int limit = 15;
-  int offset = -15;
+  int limit = 20;
+  int offset = -20;
   int lastrecievedpost = -1;
   bool isLoading = false;
   final double _panelMinSize = 70.0;
@@ -409,12 +440,18 @@ class PostWidget extends StatelessWidget {
               Align(alignment:Alignment.topLeft,
                   child: Text(post.content!, style: TextStyle(fontSize: 15.0))),
 
+
               if(post.documents != null && post.documents!.length>0)
-                InstaImageViewer(
-                  child: Image(
-                    image: Image.memory(post.documents!.first.data!).image,
+                SizedBox(
+                  height: 150,
+                  child: InstaImageViewer(
+                    child: Image(
+                      image: Image.memory(post.documents!.first.data!).image,
+                    ),
                   ),
                 ),
+
+
 
               SizedBox(height: 10.0),
 
@@ -442,26 +479,41 @@ class PostWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Icon(FontAwesomeIcons.thumbsUp, size: 20.0,color:Colors.green),
-                      SizedBox(width: 5.0),
-                      Text('Like', style: TextStyle(fontSize: 14.0)),
-                    ],
+                  GestureDetector(
+                    onTap: (){
+                      print("clicke");
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.thumbsUp, size: 20.0,color:Colors.green),
+                        SizedBox(width: 5.0),
+                        Text('Like', style: TextStyle(fontSize: 14.0)),
+                      ],
+                    ),
                   ),
-                  Row(
-                    children: <Widget>[
-                      Icon(FontAwesomeIcons.thumbsDown, size: 20.0,color: Colors.red,),
-                      SizedBox(width: 5.0),
-                      Text('Dislike', style: TextStyle(fontSize: 14.0)),
-                    ],
+                  GestureDetector(
+                    onTap: (){
+                      print("clicked");
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.thumbsDown, size: 20.0,color: Colors.red,),
+                        SizedBox(width: 5.0),
+                        Text('Dislike', style: TextStyle(fontSize: 14.0)),
+                      ],
+                    ),
                   ),
-                  Row(
-                    children: <Widget>[
-                      Icon(FontAwesomeIcons.comment, size: 20.0),
-                      SizedBox(width: 5.0),
-                      Text('Comment', style: TextStyle(fontSize: 14.0)),
-                    ],
+                  GestureDetector(
+                    onTap: (){
+                      print("clicked");
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.comment, size: 20.0),
+                        SizedBox(width: 5.0),
+                        Text('Comment', style: TextStyle(fontSize: 14.0)),
+                      ],
+                    ),
                   ),
                 ],
               )
