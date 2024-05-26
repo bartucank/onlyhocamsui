@@ -20,10 +20,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home:  RegisterScreen(),
+      home:  LoginScreen(),
       routes: {
-        '/login': (context) => RegisterScreen(),
+        '/login': (context) => LoginScreen(),
         '/usersplash': (context) => SplashPage(),
+        '/register': (context) =>RegisterScreen(),
         },
     );
   }

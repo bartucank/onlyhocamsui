@@ -277,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
                           child: MaterialButton(
                             onPressed: () {
-                              Navigator.pushReplacementNamed(context, '/login');
+                              Navigator.pushReplacementNamed(context, '/register');
                             },
                             color: Colors.white,
                             elevation: 0,

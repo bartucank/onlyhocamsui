@@ -11,18 +11,22 @@ class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await apiService.logout();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
+        },
+        child: Icon(Icons.logout),
+        backgroundColor: Constants.mainBlueColor,
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: ()async{
-                apiService.logout();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
               child: Image.asset(
                 'assets/images/logo.png',
               ),
@@ -69,6 +73,7 @@ class SplashPage extends StatelessWidget {
                   ),
                 ),
             ],),
+
           ],
         ),
       ),

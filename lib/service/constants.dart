@@ -3,7 +3,7 @@ import 'dart:ui';
 class Constants {
 
   // static const String apiBaseUrl = "https://eew.com.tr/srv";
-  static const String apiBaseUrl = "https://156e-185-144-77-46.ngrok-free.app";
+  static const String apiBaseUrl = "https://4abd-78-135-14-228.ngrok-free.app";
 
 
 
