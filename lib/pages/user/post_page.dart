@@ -520,11 +520,12 @@ class _PostWidgetState extends State<PostWidget> {
                 if (result=='200'){
                 showTopSnackBar(
                 Overlay.of(context),
-                CustomSnackBar.error(
-                message: "Wrong username/password!",
+                CustomSnackBar.success(
+                message: "Success!",
                 textAlign: TextAlign.left,
                 ),
                 );
+
                 }
                 Navigator.of(context).pop();
               },
@@ -540,6 +541,10 @@ class _PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool deleted = false;
+    if(deleted){
+      return Text("");
+    }
     return Column(
       children: [
         Divider(height: 10, color: Colors.black),
@@ -563,12 +568,17 @@ class _PostWidgetState extends State<PostWidget> {
                   PopupMenuButton<String>(
                     onSelected: (String result) async {
                       if (result == 'delete') {
+                        print("buradayim");
                         String result=await apiService.deletePost(widget.post.id);
-                        if(result==1) {
+                        print("ben aslında yogum");
+                        if(result=="200") {
+                          setState(() {
+                            deleted = true;
+                          });
                           showTopSnackBar(
                             Overlay.of(context),
-                            CustomSnackBar.error(
-                              message: "Wrong username/password!",
+                            CustomSnackBar.success(
+                              message: "Success!",
                               textAlign: TextAlign.left,
                             ),
                           );

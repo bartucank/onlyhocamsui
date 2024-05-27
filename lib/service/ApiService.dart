@@ -1,3 +1,4 @@
+import 'package:onlyhocamsui/models/NoteDTO.dart';
 import 'package:path/path.dart';
 
 import 'dart:convert';
@@ -185,6 +186,27 @@ class ApiService {
     return NoteDTOListResponse.fromJson(jsonResponse);
 
   }
+  Future<NoteDTO> getnotebyid(int id) async {
+    final jwtToken = await getJwtToken();
+    String uri = '${Constants.apiBaseUrl}/api/user/note/detail?id=$id';
+    final response = await http.get(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    print(response.body);
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+    return NoteDTO.fromJson(jsonResponse['data']);
+
+  }
+
+
 
   Future<Map<String, dynamic>>  shareNote(dynamic body) async {
     final jwtToken = await getJwtToken();
@@ -282,7 +304,7 @@ class ApiService {
       final response = await http.delete(uri, headers: headers);
 */
 
-      final response= await http.delete(Uri.parse('${Constants.apiBaseUrl}//api/user/post?id=$id'),headers: {
+      final response= await http.delete(Uri.parse('${Constants.apiBaseUrl}/api/user/post?id=$id'),headers: {
         "Authorization": "Bearer $jwtToken",
         "Content-type": "application/json"
       },
@@ -361,6 +383,7 @@ class ApiService {
       throw CustomException('Error disliking post: $e');
     }
   }
+
 
 
 

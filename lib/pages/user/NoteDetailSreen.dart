@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onlyhocamsui/models/NoteDTO.dart';
+import 'package:onlyhocamsui/pages/user/PdfViewer.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
@@ -41,9 +43,14 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   List<ReviewDTO> reviews = [];
   int displayCount = 10;
   bool isFavorite = false;
+  Future<void> askperm() async {
+
+    PermissionStatus firststatus = await Permission.storage.request();
+  }
   @override
   void initState() {
     super.initState();
+    askperm();
   }
 
   @override
@@ -67,14 +74,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 backgroundColor: Constants.whiteColor,
               ),
 
-            if(widget.note.isPurchased != null && widget.note.isPurchased!)
-              FloatingActionButton(
-                onPressed: () async {
-
-                },
-                child: Icon(FontAwesomeIcons.solidSave,color: Colors.green,),
-                backgroundColor: Constants.whiteColor,
-              ),
           ],
         ),
 
@@ -227,6 +226,30 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                             ),
                             label: const Text('Add Review'),
                           ),
+                       if (widget.note.document != null && widget.note.document!.data != null)
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            onPressed: () async {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => PdfViewer(data: widget.note.document!.data!)),
+                              );
+                            },
+                            icon: const Icon(
+                              FontAwesomeIcons.filePdf,
+                              color: Colors.green,
+                            ),
+                            label: const Text('Open Note'),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
                           if (widget.note.status != "APPROVED" && widget.isAdmin)
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
@@ -241,14 +264,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                               FontAwesomeIcons.check,
                               color: Colors.green,
                             ),
-                            label: const Text('Approveee'),
+                            label: const Text('Approve'),
                           ),
+
                         ],
                       ),
-                    Divider(
-                      height: 20,
-                    ),
-
                     Divider(
                       height: 20,
                     ),

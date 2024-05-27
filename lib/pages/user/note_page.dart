@@ -521,11 +521,13 @@ class _NotePageState extends State<NotePage>
                     }
 
                       return GestureDetector(
-                      onTap: (){
+                      onTap: () async {
+                        print("clicked");
+                        NoteDTO detailedNote = await apiService.getnotebyid(currentbook.id!);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NoteDetailScreen(note: currentbook,isAdmin:isAdmin,isOwner:isOwner),
+                            builder: (context) => NoteDetailScreen(note: detailedNote,isAdmin:isAdmin,isOwner:isOwner),
                           ),
                         );
                       },
