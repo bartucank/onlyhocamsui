@@ -96,7 +96,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                         maxLines: 1, // Adjust the number of lines as needed
                       ),
                     ),
-                    Row(
+                    if(widget.note.isPurchased != null && widget.note.isPurchased!)
+                      Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(
@@ -197,27 +198,28 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     Divider(
                       height: 20,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Reviews',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Constants.mainBlueColor),
-                                ),
-                              ],
+                    if(widget.note.reviews!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Reviews',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Constants.mainBlueColor),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
                     Column(
                       children: widget.note.reviews!.map((review) {
