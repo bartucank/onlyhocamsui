@@ -129,11 +129,17 @@ class ApiService {
     return CategoryDTOListResponse.fromJson(jsonResponse);
   }
 
-  Future<PostDTOListResponse> getPosts(int limit, int offset, int id) async {
+  Future<PostDTOListResponse> getPosts(int limit, int offset, int id,String text) async {
     final jwtToken = await getJwtToken();
     print("bis");
+    String uri = '${Constants.apiBaseUrl}/api/user/post?offset=$offset&limit=$limit&categoryId=$id';
+
+    if(text != null && text != ""){
+      uri = uri+"&key=$text";
+      print(uri);
+    }
     final response = await http.get(
-      Uri.parse('${Constants.apiBaseUrl}/api/user/post?offset=$offset&limit=$limit&categoryId=$id'),
+      Uri.parse(uri),
       headers: {
         'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',

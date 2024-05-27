@@ -67,9 +67,12 @@ class _PostPageState extends State<PostPage>
 
   Future refresh() async {
     setState(() {
+      lastList.clear();
       postDTOList.clear();
+      keywordcontroller.clear();
     limit = 20;
-    offset = 20;
+    offset = -20;
+      lastrecievedpost = 0;
     });
 
     fetchFirstPosts();
@@ -91,7 +94,7 @@ class _PostPageState extends State<PostPage>
     try {
       lastList.clear();
       PostDTOListResponse response =
-      await apiService.getPosts(limit,offset,_selectedValue.id!);
+      await apiService.getPosts(limit,offset,_selectedValue.id!,keywordcontroller.text);
       setState(() {
         postDTOList.addAll(response.data);
         lastList.addAll(response.data);
@@ -117,7 +120,7 @@ class _PostPageState extends State<PostPage>
     try {
       lastList.clear();
       PostDTOListResponse response =
-      await apiService.getPosts(limit,offset,_selectedValue.id!);
+      await apiService.getPosts(limit,offset,_selectedValue.id!,keywordcontroller.text);
       setState(() {
         postDTOList.addAll(response.data);
         lastList.addAll(response.data);
@@ -137,7 +140,7 @@ class _PostPageState extends State<PostPage>
     try {
       print("okkkkk");
       PostDTOListResponse response =
-      await apiService.getPosts(limit,offset,_selectedValue.id!);
+      await apiService.getPosts(limit,offset,_selectedValue.id!,keywordcontroller.text);
       setState(() {
         postDTOList.addAll(response.data);
         lastList.addAll(response.data);
@@ -190,6 +193,7 @@ class _PostPageState extends State<PostPage>
   final double _panelMinSize = 70.0;
   int currentUserId = -1;
   String currentUserRole = "USER";
+  TextEditingController keywordcontroller = TextEditingController();
 
   final listcontroller = ScrollController();
   @override
@@ -281,7 +285,52 @@ class _PostPageState extends State<PostPage>
                     }).toList(),
                   ),
                 ),
-
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: TextField(
+                    controller: keywordcontroller,
+                    obscureText: false,
+                    textAlign: TextAlign.start,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.normal,
+                      fontSize: 14,
+                      color: Constants.mainDarkColor,
+                    ),
+                    decoration: InputDecoration(
+                      disabledBorder: UnderlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                        borderSide: BorderSide(
+                            color: Constants.mainDarkColor, width: 1),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                        borderSide: BorderSide(
+                            color: Constants.mainDarkColor, width: 1),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                        borderSide: BorderSide(
+                            color: Constants.mainDarkColor, width: 1),
+                      ),
+                      labelText: "Keyword",
+                      labelStyle: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 16,
+                        color: Constants.mainDarkColor,
+                      ),
+                      filled: true,
+                      fillColor: Color(0x00ffffff),
+                      isDense: false,
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      prefixIcon: Icon(Icons.text_fields,
+                          color: Constants.mainDarkColor, size: 18),
+                    ),
+                  ),
+                ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                   child: Row(
@@ -291,6 +340,9 @@ class _PostPageState extends State<PostPage>
                         child: MaterialButton(
                           onPressed: () {
                             filter();
+
+                            FocusScope.of(context).unfocus();
+                            weSlideController.hide();
                           },
                           color: Constants.mainBlueColor,
                           elevation: 0,
@@ -323,7 +375,7 @@ class _PostPageState extends State<PostPage>
             BottomNavigationBarItem(
                 icon: Icon(Icons.search), label: 'Filter'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.clear), label: 'Coming Soon'),
+                icon: Icon(Icons.add), label: 'Share Post'),
           ],
           elevation: 0,
           backgroundColor: Constants.mainBlueColor,
@@ -375,7 +427,7 @@ class _PostPageState extends State<PostPage>
                   });
                   return PostWidget(post:currentbook,likec:likecount,dislikec:dislikecount,isliked:isLiked, isdisliked:isDisliked,candelete:isOwnerOrAdmin);
                 } else {
-                  if (!lastList.isEmpty) {
+                  if (!lastList.isEmpty && lastrecievedpost==20) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 64),
                       child: Center(
@@ -508,6 +560,7 @@ class _PostWidgetState extends State<PostWidget> {
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      if(widget.candelete)
                       const PopupMenuItem<String>(
                         value: 'delete',
                         child: Text('Delete'),
