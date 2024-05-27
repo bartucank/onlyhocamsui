@@ -1,3 +1,5 @@
+import 'package:path/path.dart';
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -6,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:onlyhocamsui/models/CategoryDTO.dart';
+import 'package:onlyhocamsui/models/NoteDTOListResponse.dart';
 import 'package:onlyhocamsui/models/PostDTOListResponse.dart';
 import '../models/CategoryDTOListResponse.dart';
 import '../models/UserDTO.dart';
@@ -154,6 +157,113 @@ class ApiService {
     print("test");
     return PostDTOListResponse.fromJson(jsonResponse);
 
+  }
+
+  Future<NoteDTOListResponse> getNotes(int limit, int offset,String text) async {
+    final jwtToken = await getJwtToken();
+    print("bis");
+    String uri = '${Constants.apiBaseUrl}/api/user/note?offset=$offset&limit=$limit';
+
+    if(text != null && text != ""){
+      uri = uri+"&key=$text";
+      print(uri);
+    }
+    final response = await http.get(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+    return NoteDTOListResponse.fromJson(jsonResponse);
+
+  }
+
+  Future<Map<String, dynamic>>  shareNote(dynamic body) async {
+    final jwtToken = await getJwtToken();
+    print("bis");
+    String uri = '${Constants.apiBaseUrl}/api/user/note';
+
+    final response = await http.post(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+    return jsonResponse;
+  }
+
+  Future<int> uploadDocument(String filePath) async {
+    try {
+      final jwtToken = await getJwtToken();
+      var uri = Uri.parse('${Constants.apiBaseUrl}/api/user/document');
+      var request = http.MultipartRequest('POST', uri);
+
+
+
+      File file = File(filePath);
+      request.files.add(
+          http.MultipartFile(
+              'document',
+              file.readAsBytes().asStream(),
+              file.lengthSync(),
+              filename: basename(file.path),
+              contentType: MediaType.parse(getMimeType(basename(file.path).split('.').last))
+          )
+      );
+
+      Map<String, String> headers = {
+        "Authorization": "Bearer $jwtToken",
+        "Content-type": "multipart/form-data"
+      };
+
+      request.headers.addAll(headers);
+      var response = await request.send();
+      var responseString = await response.stream.bytesToString();
+      var jsonResponse = json.decode(responseString);
+      print(jsonResponse);
+
+      if (response.statusCode == 200) {
+        print(response.statusCode);
+        return jsonResponse['data']['additionalInformation'];
+      } else {
+        print("Failed to upload material. Status code: ${response.statusCode}. Response: $responseString");
+        return -1;
+      }
+    } catch (e) {
+      print("Error uploading material: $e");
+      return -1;
+    }
+  }
+
+  String getMimeType(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'pdf':
+        return 'application/pdf';
+      case 'epub':
+        return 'application/epub+zip';
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'html':
+        return 'text/html';
+      case 'txt':
+        return 'text/plain';
+      default:
+        return 'application/octet-stream';
+    }
   }
 
 
