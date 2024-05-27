@@ -554,7 +554,7 @@ class _PostWidgetState extends State<PostWidget> {
                   PopupMenuButton<String>(
                     onSelected: (String result) async {
                       if (result == 'delete') {
-                        String result=await piService.deletePost(widget.post.id);
+                        String result=await apiService.deletePost(widget.post.id);
                         if(result==1) {
                           showTopSnackBar(
                             Overlay.of(context),
@@ -634,17 +634,9 @@ class _PostWidgetState extends State<PostWidget> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   GestureDetector(
-                    onTap: () async {
-                      String result = await apiService.likePost(widget.post.id);
-                      if(result=="200"){
-                        showTopSnackBar(
-                          Overlay.of(context),
-                          CustomSnackBar.success(
-                            message: "Liked!",
-                            textAlign: TextAlign.left,
-                          ),
-                        );
-                      }
+                    onTap: () {
+                      //todo: like
+                      print("clicked");
                     },
                     child: Row(
                       children: <Widget>[
@@ -655,17 +647,9 @@ class _PostWidgetState extends State<PostWidget> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () async {
-                      String result = await apiService.dislikePost(widget.post.id);
-                      if(result=="200"){
-                        showTopSnackBar(
-                          Overlay.of(context),
-                          CustomSnackBar.success(
-                            message: "Disiked!",
-                            textAlign: TextAlign.left,
-                          ),
-                        );
-                      }
+                    onTap: () {
+                      //todo: dislike
+                      print("clicked");
                     },
                     child: Row(
                       children: <Widget>[
@@ -709,4 +693,3 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 }
-
