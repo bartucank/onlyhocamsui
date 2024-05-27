@@ -21,6 +21,7 @@ NoteDTO _$NoteDTOFromJson(Map<String, dynamic> json) => NoteDTO(
           ?.map((e) => ReviewDTO.fromJson(e as Map<String, dynamic>))
           .toList(),
       isPurchased: json['isPurchased'] as bool?,
+      status: json['status'] as String?,
     );
 
 Map<String, dynamic> _$NoteDTOToJson(NoteDTO instance) => <String, dynamic>{
@@ -32,4 +33,5 @@ Map<String, dynamic> _$NoteDTOToJson(NoteDTO instance) => <String, dynamic>{
       'document': instance.document?.toJson(),
       'reviews': instance.reviews?.map((e) => e.toJson()).toList(),
       'isPurchased': instance.isPurchased,
+      'status': instance.status,
     };

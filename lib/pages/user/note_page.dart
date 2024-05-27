@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -41,6 +43,7 @@ class _NotePageState extends State<NotePage>
   List<NoteDTO> noteDTOList = [];
   List<NoteDTO> lastList = [];
 
+  bool _switchValue = false;
   void fetchCurrentUser() async {
     final jwtToken = await apiService.getUserId();
     if(jwtToken != "NOT_FOUND"){
@@ -85,7 +88,7 @@ class _NotePageState extends State<NotePage>
     try {
       lastList.clear();
       NoteDTOListResponse response =
-      await apiService.getNotes(limit,offset,keywordcontroller.text);
+      await apiService.getNotes(limit,offset,keywordcontroller.text,_switchValue);
       setState(() {
         noteDTOList.addAll(response.data);
         lastList.addAll(response.data);
@@ -111,7 +114,7 @@ class _NotePageState extends State<NotePage>
     try {
       lastList.clear();
       NoteDTOListResponse response =
-      await apiService.getNotes(limit,offset,keywordcontroller.text);
+      await apiService.getNotes(limit,offset,keywordcontroller.text,_switchValue);
       setState(() {
         noteDTOList.addAll(response.data);
         lastList.addAll(response.data);
@@ -131,7 +134,7 @@ class _NotePageState extends State<NotePage>
     try {
       print("okkkkk");
       NoteDTOListResponse response =
-      await apiService.getNotes(limit,offset,keywordcontroller.text);
+      await apiService.getNotes(limit,offset,keywordcontroller.text,_switchValue);
       setState(() {
         noteDTOList.addAll(response.data);
         lastList.addAll(response.data);
@@ -184,8 +187,135 @@ class _NotePageState extends State<NotePage>
   int currentUserId = -1;
   String currentUserRole = "USER";
   TextEditingController keywordcontroller = TextEditingController();
+  TextEditingController notenamecontroller = TextEditingController();
 
   final listcontroller = ScrollController();
+
+
+  FilePickerResult? pickedFile;
+
+  void showaddntepopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Add File"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: notenamecontroller,
+                decoration: InputDecoration(hintText: "Enter file name"),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  pickedFile = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['pdf','PDF'],
+                  );
+                  if (pickedFile != null) {
+                    print("File selected: ${pickedFile?.files.single.name}");
+                  }
+                },
+                child: Text("Select PDF"),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  Object a = saveMaterial();
+                  if(a != -1){
+                    notenamecontroller.clear();
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Text("Send to approvement")
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Future<int> saveMaterial() async {
+    if(notenamecontroller.text.isEmpty){
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message:
+          "Note name cannot be empty.",
+          textAlign: TextAlign.left,
+        ),
+      );
+      return -1;
+    }
+    setState(() {
+      isLoading = true;
+    });
+
+    if (pickedFile != null) {
+      String filePath = pickedFile!.files.single.path!;
+
+      try {
+        int docId = await apiService.uploadDocument(filePath);
+
+        if (docId != "-1") {
+
+          //todo: add note service call with docId.
+          String result = "";//here apiservice should return "ok" if http status is 200. else return "-1"
+          if(result == "ok"){
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.success(
+                message: "Note sent to approval process.",
+                textAlign: TextAlign.left,
+              ),
+            );
+          }else{
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.error(
+                message: "Unexpected error. Please contact system administrator.",
+                textAlign: TextAlign.left,
+              ),
+            );
+          }
+
+        } else {
+
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(
+              message: "Please provide valid file.",
+              textAlign: TextAlign.left,
+            ),
+          );
+        }
+      } catch (e) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: "Unexpected error. Please contact system administrator.",
+            textAlign: TextAlign.left,
+          ),
+        );
+      }
+    } else {
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message: "No file selected.",
+          textAlign: TextAlign.left,
+        ),
+      );
+    }
+
+    return 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,7 +324,7 @@ class _NotePageState extends State<NotePage>
         appBar: AppBar(
           backgroundColor: Constants.mainBlueColor,
           title: Text(
-            'Posts',
+            'Notes',
             style: TextStyle(color: Constants.whiteColor),
           ),
           centerTitle: false,
@@ -278,6 +408,32 @@ class _NotePageState extends State<NotePage>
                       ),
                     ),
                   ),
+                  if(currentUserRole == "ADMIN")
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(15, 15, 0, 0),
+                    child:  Row(
+                      children: [
+                        Expanded(
+                          child: Text("Unapproved Notes",style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                            fontSize: 16,
+                            color: Constants.mainDarkColor,
+                          ),),
+                        ),
+                        CupertinoCheckbox(
+                          activeColor: Constants.mainBlueColor,
+                          focusColor: Constants.mainBlueColor,
+                          value: _switchValue,
+                          onChanged: (value) {
+                            setState(() {
+                              _switchValue = value!;
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                     child: Row(
@@ -335,7 +491,7 @@ class _NotePageState extends State<NotePage>
                 weSlideController.show();
               }
               if(index == 1){
-
+                showaddntepopup(context);
               }
             },
           ),

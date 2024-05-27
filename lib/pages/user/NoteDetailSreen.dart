@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onlyhocamsui/models/NoteDTO.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:comment_tree/comment_tree.dart';
@@ -19,7 +22,12 @@ class NoteDetailScreen extends StatefulWidget {
   final bool isAdmin;
   final bool isOwner;
 
-  const NoteDetailScreen({Key? key, required this.note, required this.isAdmin, required this.isOwner}) : super(key: key);
+  const NoteDetailScreen(
+      {Key? key,
+      required this.note,
+      required this.isAdmin,
+      required this.isOwner})
+      : super(key: key);
 
   @override
   State<NoteDetailScreen> createState() => _NoteDetailScreenState();
@@ -33,8 +41,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   List<ReviewDTO> reviews = [];
   int displayCount = 10;
   bool isFavorite = false;
-
-
   @override
   void initState() {
     super.initState();
@@ -48,6 +54,29 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        floatingActionButton: Column(
+
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if(widget.isAdmin || widget.isOwner)
+              FloatingActionButton(
+                onPressed: () async {
+                  //todo: delete api call
+                },
+                child: Icon(FontAwesomeIcons.trash,color: Colors.red,),
+                backgroundColor: Constants.whiteColor,
+              ),
+
+            if(widget.note.isPurchased != null && widget.note.isPurchased!)
+              FloatingActionButton(
+                onPressed: () async {
+
+                },
+                child: Icon(FontAwesomeIcons.solidSave,color: Colors.green,),
+                backgroundColor: Constants.whiteColor,
+              ),
+          ],
+        ),
 
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -61,7 +90,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
               Navigator.pop(context);
             },
           ),
-
         ),
         body: SingleChildScrollView(
           child: Stack(
@@ -96,109 +124,135 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                         maxLines: 1, // Adjust the number of lines as needed
                       ),
                     ),
-                    if(widget.note.isPurchased != null && widget.note.isPurchased!)
-                      Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                          ),
-                          onPressed: () async {
-                            await showDialog<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  content: SingleChildScrollView(
-                                    // Make the dialog content scrollable
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            Positioned(
-                                              top: 50,
-                                              left: 0,
-                                              right: 0,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Container(
-                                                    width: 50,
-                                                    height: 50,
-                                                    child: InkResponse(
-                                                      onTap: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Form(
-                                              key: _formKey,
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: <Widget>[
 
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(8),
-                                                    child: TextFormField(
-                                                      maxLines: 3,
-                                                      onSaved: (val) {
-                                                        _comment = (val ?? '');
-                                                        print(
-                                                            'Comment: $_comment');
-                                                      },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          if (widget.note.isPurchased != null &&
+                              widget.note.isPurchased!)
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            onPressed: () async {
+                              await showDialog<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: SingleChildScrollView(
+                                      // Make the dialog content scrollable
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              Positioned(
+                                                top: 50,
+                                                left: 0,
+                                                right: 0,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: InkResponse(
+                                                        onTap: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(8),
-                                                    child: ElevatedButton(
-                                                      child:
-                                                          const Text('Submit'),
-                                                      onPressed: () {
-                                                        if (_formKey
-                                                            .currentState!
-                                                            .validate()) {
-                                                          _formKey.currentState!
-                                                              .save();
-                                                          // saveReview();
-                                                        }
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              Form(
+                                                key: _formKey,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: <Widget>[
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      child: TextFormField(
+                                                        maxLines: 3,
+                                                        onSaved: (val) {
+                                                          _comment =
+                                                              (val ?? '');
+                                                          print(
+                                                              'Comment: $_comment');
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      child: ElevatedButton(
+                                                        child: const Text(
+                                                            'Submit'),
+                                                        onPressed: () {
+                                                          if (_formKey
+                                                              .currentState!
+                                                              .validate()) {
+                                                            _formKey
+                                                                .currentState!
+                                                                .save();
+                                                            //todo: add review api call
+                                                          }
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.star,
-                            color: Constants.yellowColor,
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.star,
+                              color: Constants.yellowColor,
+                            ),
+                            label: const Text('Add Review'),
                           ),
-                          label: const Text('Add Review'),
-                        ),
-                      ],
-                    ),
+                          if (widget.note.status != "APPROVED" && widget.isAdmin)
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            onPressed: () async {
+                              //todo: approve api call
+                            },
+                            icon: const Icon(
+                              FontAwesomeIcons.check,
+                              color: Colors.green,
+                            ),
+                            label: const Text('Approveee'),
+                          ),
+                        ],
+                      ),
                     Divider(
                       height: 20,
                     ),
-                    if(widget.note.reviews!.isNotEmpty)
+
+                    Divider(
+                      height: 20,
+                    ),
+                    if (widget.note.reviews!.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
                         child: Row(
@@ -220,7 +274,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                           ],
                         ),
                       ),
-
                     Column(
                       children: widget.note.reviews!.map((review) {
                         return Container(
@@ -239,7 +292,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                               child: CircleAvatar(
                                 radius: 18,
                                 backgroundColor: Colors.grey,
-                                backgroundImage: AssetImage('assets/images/default.png'),
+                                backgroundImage:
+                                    AssetImage('assets/images/default.png'),
                               ),
                               preferredSize: Size.fromRadius(18),
                             ),
@@ -248,13 +302,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 8),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[100],
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 4),
                                         Text(
@@ -263,16 +319,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                                       ],
                                     ),
                                   ),
-
                                 ],
                               );
                             },
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                         );
                       }).toList(),
                     )
-
                   ],
                 ),
               ),

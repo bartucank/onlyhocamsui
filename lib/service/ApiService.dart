@@ -159,7 +159,7 @@ class ApiService {
 
   }
 
-  Future<NoteDTOListResponse> getNotes(int limit, int offset,String text) async {
+  Future<NoteDTOListResponse> getNotes(int limit, int offset,String text,bool _switchValue) async {
     final jwtToken = await getJwtToken();
     print("bis");
     String uri = '${Constants.apiBaseUrl}/api/user/note?offset=$offset&limit=$limit';
@@ -167,6 +167,9 @@ class ApiService {
     if(text != null && text != ""){
       uri = uri+"&key=$text";
       print(uri);
+    }
+    if(_switchValue != null && _switchValue){
+      uri = uri+"&waiting=true";
     }
     final response = await http.get(
       Uri.parse(uri),

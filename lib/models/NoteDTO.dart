@@ -16,7 +16,7 @@ class NoteDTO {
    DocumentDTO? document;
    List<ReviewDTO>? reviews;
    bool? isPurchased;
-
+   String? status;
 
 
 
@@ -28,7 +28,8 @@ class NoteDTO {
     this.user,
     this.document,
     this.reviews,
-    this.isPurchased
+    this.isPurchased,
+    this.status
   });
 
   factory NoteDTO.fromJson(Map<String,dynamic> data) => _$NoteDTOFromJson(data);
