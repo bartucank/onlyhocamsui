@@ -268,6 +268,35 @@ class ApiService {
         return 'application/octet-stream';
     }
   }
+  Future<String> deletePost(int? id) async {
+    try {
+      final jwtToken = await getJwtToken();
+      /*
+      var uri=Uri.parse('${Constants.apiBaseUrl}//api/user/post?id=$id');
+
+      Map<String, String> headers = {
+        "Authorization": "Bearer $jwtToken",
+        "Content-type": "application/json"
+      };
+
+      final response = await http.delete(uri, headers: headers);
+*/
+
+      final response= await http.delete(Uri.parse('${Constants.apiBaseUrl}//api/user/post?id=$id'),headers: {
+        "Authorization": "Bearer $jwtToken",
+        "Content-type": "application/json"
+      },
+
+      );
+      if (response.statusCode == 200) {
+        return '200';
+      } else {
+        return '400';
+      }
+    } catch (e) {
+      return '400';
+    }
+  }
 
   Future<String> addComment(int id, String comment) async {
     try {

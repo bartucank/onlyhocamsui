@@ -552,9 +552,18 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                   Spacer(),
                   PopupMenuButton<String>(
-                    onSelected: (String result) {
+                    onSelected: (String result) async {
                       if (result == 'delete') {
-                        //todo: delete post
+                        String result=await piService.deletePost(widget.post.id);
+                        if(result==1) {
+                          showTopSnackBar(
+                            Overlay.of(context),
+                            CustomSnackBar.error(
+                              message: "Wrong username/password!",
+                              textAlign: TextAlign.left,
+                            ),
+                          );
+                        }
                       }else if(result == 'addcom'){
 
                         _showAddCommentDialog();
