@@ -515,8 +515,17 @@ class _PostWidgetState extends State<PostWidget> {
               child: Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                //todo: add comment request
+              onPressed: () async {
+                String result = await apiService.addComment(widget.post.id , _commentController.text);
+                if (result=='200'){
+                showTopSnackBar(
+                Overlay.of(context),
+                CustomSnackBar.error(
+                message: "Wrong username/password!",
+                textAlign: TextAlign.left,
+                ),
+                );
+                }
                 Navigator.of(context).pop();
               },
               child: Text('Submit'),

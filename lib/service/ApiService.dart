@@ -298,23 +298,20 @@ class ApiService {
     }
   }
 
-  Future<String> addComment(int id, String comment) async {
+  Future<String> addComment(int? id, String? comment) async {
     try {
       final jwtToken = await getJwtToken();
       final response = await http.post(
-        Uri.parse('${Constants.apiBaseUrl}/api/post/comment'),
+        Uri.parse('${Constants.apiBaseUrl}/api/user/post/comment?id=$id&comment=$comment'),
         headers: {
           'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'id': id,
-          'comment': comment,
-        }),
+        }
+
       );
 
       if (response.statusCode == 200) {
-        return 'Comment added successfully';
+        return '200';
       } else {
         throw CustomException('Failed to add comment: ${response.reasonPhrase}');
       }
