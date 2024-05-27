@@ -269,6 +269,75 @@ class ApiService {
     }
   }
 
+  Future<String> addComment(int id, String comment) async {
+    try {
+      final jwtToken = await getJwtToken();
+      final response = await http.post(
+        Uri.parse('${Constants.apiBaseUrl}/api/post/comment'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'id': id,
+          'comment': comment,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return 'Comment added successfully';
+      } else {
+        throw CustomException('Failed to add comment: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw CustomException('Error adding comment: $e');
+    }
+  }
+
+  Future<String> likePost(int? id) async {
+    try {
+      final jwtToken = await getJwtToken();
+      final response = await http.post(
+        Uri.parse('${Constants.apiBaseUrl}/api/user/post/like?id=$id'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return '200';
+      } else {
+        throw CustomException('Failed to like post: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw CustomException('Error liking post: $e');
+    }
+  }
+
+  Future<String> dislikePost(int? id) async {
+    try {
+      final jwtToken = await getJwtToken();
+      final response = await http.post(
+        Uri.parse('${Constants.apiBaseUrl}/api/user/post/dislike?id=$id'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return '200';
+      } else {
+        throw CustomException('Failed to dislike post: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw CustomException('Error disliking post: $e');
+    }
+  }
+
+
+
 
 }
 

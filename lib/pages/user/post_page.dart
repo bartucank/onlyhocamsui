@@ -527,6 +527,8 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
+  final ApiService apiService = ApiService();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -623,9 +625,17 @@ class _PostWidgetState extends State<PostWidget> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   GestureDetector(
-                    onTap: () {
-                      //todo: like
-                      print("clicked");
+                    onTap: () async {
+                      String result = await apiService.likePost(widget.post.id);
+                      if(result=="200"){
+                        showTopSnackBar(
+                          Overlay.of(context),
+                          CustomSnackBar.success(
+                            message: "Liked!",
+                            textAlign: TextAlign.left,
+                          ),
+                        );
+                      }
                     },
                     child: Row(
                       children: <Widget>[
@@ -636,9 +646,17 @@ class _PostWidgetState extends State<PostWidget> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      //todo: dislike
-                      print("clicked");
+                    onTap: () async {
+                      String result = await apiService.dislikePost(widget.post.id);
+                      if(result=="200"){
+                        showTopSnackBar(
+                          Overlay.of(context),
+                          CustomSnackBar.success(
+                            message: "Disiked!",
+                            textAlign: TextAlign.left,
+                          ),
+                        );
+                      }
                     },
                     child: Row(
                       children: <Widget>[
