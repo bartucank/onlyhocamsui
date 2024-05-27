@@ -23,7 +23,7 @@ dependencies:
   insta_image_viewer: ^1.0.4
   comment_tree: ^0.3.0
   file_picker: ^5.5.0
-  syncfusion_flutter_pdfviewer: ^24.2.8
+  syncfusion_flutter_pdfviewer: ^22.2.12
 dev_dependencies:
   flutter_test:
     sdk: flutter
