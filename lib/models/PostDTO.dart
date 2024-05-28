@@ -21,7 +21,8 @@ class PostDTO {
   bool? isDisliked;
 
 
-
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool isCommentVisible;
 
 
 
@@ -37,7 +38,8 @@ class PostDTO {
     this.comments,
     this.actions,
     this.isLiked,
-    this.isDisliked
+    this.isDisliked,
+    this.isCommentVisible = false
   });
 
   factory PostDTO.fromJson(Map<String,dynamic> data) => _$PostDTOFromJson(data);

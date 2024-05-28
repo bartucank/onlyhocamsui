@@ -205,7 +205,7 @@ class _NotePageState extends State<NotePage>
             children: <Widget>[
               TextField(
                 controller: notenamecontroller,
-                decoration: InputDecoration(hintText: "Enter file name"),
+                decoration: InputDecoration(hintText: "Enter Note Title"),
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -295,6 +295,7 @@ class _NotePageState extends State<NotePage>
           );
         }
       } catch (e) {
+        print(e);
         showTopSnackBar(
           Overlay.of(context),
           const CustomSnackBar.error(

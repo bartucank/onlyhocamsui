@@ -38,7 +38,7 @@ class _PostPageState extends State<PostPage>
   CategoryDTO _selectedValue = CategoryDTO();
   List<PostDTO> postDTOList = [];
   List<PostDTO> lastList = [];
-
+  bool dummy = false;
   void fetchCategories() async {
     try {
       CategoryDTOListResponse response = await apiService.getCategories();
@@ -177,6 +177,40 @@ class _PostPageState extends State<PostPage>
       postDTOList.firstWhere((post) => post.id == id).isLiked=false;
       lastList.firstWhere((post) => post.id == id).isLiked=false;
     });
+  }
+  Future<void> handleCommentVisible(int id) async {
+    print("Before:");
+    var post = postDTOList.firstWhere((post) => post.id == id);
+    print(post.isCommentVisible);
+
+    setState(() {
+      post.isCommentVisible = !post.isCommentVisible;
+      var lastPost = lastList.firstWhere((post) => post.id == id);
+      lastPost.isCommentVisible = post.isCommentVisible;
+
+      // Ek Hata Ayıklama Mesajları
+      print("Updated PostDTOList:");
+      postDTOList.forEach((post) {
+        print("Post ID: ${post.id}, isCommentVisible: ${post.isCommentVisible}");
+      });
+
+      print("Updated LastList:");
+      lastList.forEach((post) {
+        print("Post ID: ${post.id}, isCommentVisible: ${post.isCommentVisible}");
+      });
+    });
+
+    print("After:");
+    print(postDTOList.firstWhere((post) => post.id == id).isCommentVisible);
+
+  }
+
+
+  bool getCommentVisible(int id) {
+    print("id: $id");
+    var post = postDTOList.firstWhere((post) => post.id == id);
+    print(post.isCommentVisible);
+    return post.isCommentVisible;
   }
   void filter() async {
     setState(() {
@@ -635,10 +669,9 @@ class _PostPageState extends State<PostPage>
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isCommentsVisible = !isCommentsVisible;
-                                    });
+                                  onTap: () async{
+                                      await handleCommentVisible(post.id!);
+
                                   },
                                   child: Row(
                                     children: <Widget>[
@@ -651,7 +684,7 @@ class _PostPageState extends State<PostPage>
                               ],
                             ),
                             Visibility(
-                              visible: isCommentsVisible && post.comments!.isNotEmpty,
+                              visible: getCommentVisible(post.id!),
                               child: Column(
                                 children: post.comments!.map((comment) {
                                   return ListTile(
