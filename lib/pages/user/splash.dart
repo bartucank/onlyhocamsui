@@ -110,7 +110,32 @@ class SplashPage extends StatelessWidget {
                         ),
 
                       ],)
-                        : SizedBox(); // Rol "ADMIN" değilse boş bir SizedBox döndür
+                        :
+                    role == "USER"?
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => UserPage()),
+                            );
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: MediaQuery.of(context).size.width/2  -50,
+                                color: Constants.mainBlueColor,
+                              ),
+                              Text("Profile",style: TextStyle(color: Constants.mainDarkColor,fontSize: 25),)
+                            ],
+                          ),
+                        ),
+
+                      ],):SizedBox();
                   }
                 }
               },
