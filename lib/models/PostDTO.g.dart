@@ -25,6 +25,8 @@ PostDTO _$PostDTOFromJson(Map<String, dynamic> json) => PostDTO(
       actions: (json['actions'] as List<dynamic>?)
           ?.map((e) => LikeLogDTO.fromJson(e as Map<String, dynamic>))
           .toList(),
+      isLiked: json['isLiked'] as bool?,
+      isDisliked: json['isDisliked'] as bool?,
     );
 
 Map<String, dynamic> _$PostDTOToJson(PostDTO instance) => <String, dynamic>{
@@ -38,4 +40,6 @@ Map<String, dynamic> _$PostDTOToJson(PostDTO instance) => <String, dynamic>{
       'documents': instance.documents?.map((e) => e.toJson()).toList(),
       'comments': instance.comments?.map((e) => e.toJson()).toList(),
       'actions': instance.actions?.map((e) => e.toJson()).toList(),
+      'isLiked': instance.isLiked,
+      'isDisliked': instance.isDisliked,
     };

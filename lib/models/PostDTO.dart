@@ -17,6 +17,8 @@ class PostDTO {
   List<DocumentDTO>? documents;
   List<CommentDTO>? comments;
   List<LikeLogDTO>? actions;
+  bool? isLiked;
+  bool? isDisliked;
 
 
 
@@ -34,6 +36,8 @@ class PostDTO {
     this.documents,
     this.comments,
     this.actions,
+    this.isLiked,
+    this.isDisliked
   });
 
   factory PostDTO.fromJson(Map<String,dynamic> data) => _$PostDTOFromJson(data);

@@ -154,6 +154,30 @@ class _PostPageState extends State<PostPage>
     });
   }
 
+  void removethispostfrompage(int id) {
+    setState(() {
+    postDTOList.removeWhere((post) => post.id == id);
+    lastList.removeWhere((post) => post.id == id);
+
+    });
+  }
+  void updateLike(int id) {
+    setState(() {
+      postDTOList.firstWhere((post) => post.id == id).isLiked=true;
+      lastList.firstWhere((post) => post.id == id).isLiked=true;
+      postDTOList.firstWhere((post) => post.id == id).isDisliked=false;
+      lastList.firstWhere((post) => post.id == id).isDisliked=false;
+    });
+  }
+  void updateDisliked(int id) {
+    setState(() {
+      postDTOList.firstWhere((post) => post.id == id).isDisliked=true;
+      lastList.firstWhere((post) => post.id == id).isDisliked=true;
+
+      postDTOList.firstWhere((post) => post.id == id).isLiked=false;
+      lastList.firstWhere((post) => post.id == id).isLiked=false;
+    });
+  }
   void filter() async {
     setState(() {
       offset = -20;
@@ -196,6 +220,61 @@ class _PostPageState extends State<PostPage>
   TextEditingController keywordcontroller = TextEditingController();
 
   final listcontroller = ScrollController();
+
+
+  void _showAddCommentDialog(int id) {
+    final TextEditingController _commentController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _commentController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  focusColor: Constants.mainBlueColor,
+                  fillColor: Constants.mainBlueColor,
+                  hoverColor: Constants.mainBlueColor,
+
+                  hintText: 'Enter your comment',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String result = await apiService.addComment(id , _commentController.text);
+                if (result=='200'){
+                  showTopSnackBar(
+                    Overlay.of(context),
+                    CustomSnackBar.success(
+                      message: "Success!",
+                      textAlign: TextAlign.left,
+                    ),
+                  );
+
+                }
+                Navigator.of(context).pop();
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -403,29 +482,190 @@ class _PostPageState extends State<PostPage>
               itemCount: postDTOList.length + 1,
               itemBuilder: (context2, index) {
                 if (index < postDTOList.length) {
-                  PostDTO currentbook = postDTOList[index];
+                  PostDTO post = postDTOList[index];
                   int likecount = 0;
                   int dislikecount = 0;
-                  bool isLiked = false;
-                  bool isDisliked = false;
                   bool isOwnerOrAdmin = false;
                   if(currentUserRole == "ADMIN"){
                     isOwnerOrAdmin = true;
-                  }else if(currentbook.user!.id! == currentUserId){
+                  }else if(post.user!.id! == currentUserId){
                     isOwnerOrAdmin = true;
                   }
-                  currentbook.actions?.forEach((element) {
+                  post.actions?.forEach((element) {
                     if(element.type == "LIKE"){
                       likecount++;
                     }else{
                       dislikecount++;
                     }
-                    if(element.user!.id == currentUserId){
-                      isLiked = element.type == "LIKE";
-                      isDisliked = !isLiked;
-                    }
+
                   });
-                  return PostWidget(post:currentbook,likec:likecount,dislikec:dislikecount,isliked:isLiked, isdisliked:isDisliked,candelete:isOwnerOrAdmin);
+                  bool isDeleted = false;
+                  bool isCommentsVisible = false;
+                  return isDeleted?Text(""):
+                  Column(
+                    children: [
+                      Divider(height: 10, color: Colors.black),
+                      Container(
+                        padding: EdgeInsets.all(10.0),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                SizedBox(width: 7.0),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(post.user!.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
+                                    SizedBox(height: 5.0),
+                                    Text(post.formattedDate!, style: TextStyle(fontSize: 11.0)),
+                                  ],
+                                ),
+                                Spacer(),
+                                PopupMenuButton<String>(
+                                  onSelected: (String result) async {
+                                    if (result == 'delete') {
+                                      String result=await apiService.deletePost(post.id);
+                                      if(result=="200") {
+                                        removethispostfrompage(post.id!);
+                                        print(isDeleted);
+                                        showTopSnackBar(
+                                          Overlay.of(context),
+                                          CustomSnackBar.success(
+                                            message: "Success!",
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        );
+                                      }
+                                    }else if(result == 'addcom'){
+
+                                      _showAddCommentDialog(post.id!);
+
+                                    }
+                                  },
+                                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                    if(isOwnerOrAdmin)
+                                      const PopupMenuItem<String>(
+                                        value: 'delete',
+                                        child: Text('Delete'),
+                                      ),
+                                    const PopupMenuItem<String>(
+                                      value: 'addcom',
+                                      child: Text('Add Comment'),
+                                    ),
+                                  ],
+                                  icon: Icon(Icons.more_vert),
+                                ),
+                              ],
+                            ),
+                            Divider(height: 10),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(post.content!, style: TextStyle(fontSize: 15.0)),
+                            ),
+                            if (post.documents != null && post.documents!.isNotEmpty)
+                              SizedBox(
+                                height: 150,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: post.documents!.map((doc) {
+                                      Uint8List? data = doc.data;
+                                      return data != null
+                                          ? Padding(
+                                        padding: const EdgeInsets.only(right: 8.0),
+                                        child: InstaImageViewer(
+                                          child: Image.memory(data),
+                                        ),
+                                      )
+                                          : SizedBox.shrink();
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            SizedBox(height: 10.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Row(
+                                  children: <Widget>[
+                                    Text('${likecount} like/s', style: TextStyle(fontSize: 10.0)),
+                                    Text('  •  '),
+                                    Text('${dislikecount} dislike/s', style: TextStyle(fontSize: 10.0)),
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Text('${post.comments!.length.toString()} comments  •  ', style: TextStyle(fontSize: 10.0)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Divider(height: 30.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                GestureDetector(
+                                  onTap: () {
+                                    //todo: like
+                                    updateLike(post.id!);
+                                    print("clicked");
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(FontAwesomeIcons.thumbsUp, size: 20.0, color: (post.isLiked != null && post.isLiked!) ? Colors.green : Colors.black),
+                                      SizedBox(width: 5.0),
+                                      Text('Like', style: TextStyle(fontSize: 14.0)),
+                                    ],
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    //todo: dislike
+                                    updateDisliked(post.id!);
+                                    print("clicked");
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(FontAwesomeIcons.thumbsDown, size: 20.0, color: (post.isDisliked != null && post.isDisliked!) ? Colors.red : Colors.black),
+                                      SizedBox(width: 5.0),
+                                      Text('Dislike', style: TextStyle(fontSize: 14.0)),
+                                    ],
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isCommentsVisible = !isCommentsVisible;
+                                    });
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(FontAwesomeIcons.comment, size: 20.0),
+                                      SizedBox(width: 5.0),
+                                      Text('Comments', style: TextStyle(fontSize: 14.0)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Visibility(
+                              visible: isCommentsVisible && post.comments!.isNotEmpty,
+                              child: Column(
+                                children: post.comments!.map((comment) {
+                                  return ListTile(
+                                    title: Text(comment.user!.name!),
+                                    subtitle: Text(comment.content!),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
                 } else {
                   if (!lastList.isEmpty && lastrecievedpost==20) {
                     return const Padding(
@@ -462,253 +702,3 @@ class CategoryButton extends StatelessWidget {
   }
 }
 
-class PostWidget extends StatefulWidget {
-  final PostDTO post;
-  final int likec;
-  final int dislikec;
-  final bool isliked;
-  final bool isdisliked;
-  final bool candelete;
-
-  PostWidget({
-    required this.post,
-    required this.likec,
-    required this.dislikec,
-    required this.isliked,
-    required this.isdisliked,
-    required this.candelete
-  });
-
-  @override
-  _PostWidgetState createState() => _PostWidgetState();
-}
-
-class _PostWidgetState extends State<PostWidget> {
-  bool isCommentsVisible = false;
-  void _showAddCommentDialog() {
-    final TextEditingController _commentController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _commentController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  focusColor: Constants.mainBlueColor,
-                  fillColor: Constants.mainBlueColor,
-                  hoverColor: Constants.mainBlueColor,
-
-                  hintText: 'Enter your comment',
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                String result = await apiService.addComment(widget.post.id , _commentController.text);
-                if (result=='200'){
-                showTopSnackBar(
-                Overlay.of(context),
-                CustomSnackBar.success(
-                message: "Success!",
-                textAlign: TextAlign.left,
-                ),
-                );
-
-                }
-                Navigator.of(context).pop();
-              },
-              child: Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  final ApiService apiService = ApiService();
-
-  @override
-  Widget build(BuildContext context) {
-    bool deleted = false;
-    if(deleted){
-      return Text("");
-    }
-    return Column(
-      children: [
-        Divider(height: 10, color: Colors.black),
-        Container(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  SizedBox(width: 7.0),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(widget.post.user!.name!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
-                      SizedBox(height: 5.0),
-                      Text(widget.post.formattedDate!, style: TextStyle(fontSize: 11.0)),
-                    ],
-                  ),
-                  Spacer(),
-                  PopupMenuButton<String>(
-                    onSelected: (String result) async {
-                      if (result == 'delete') {
-                        print("buradayim");
-                        String result=await apiService.deletePost(widget.post.id);
-                        print("ben aslında yogum");
-                        if(result=="200") {
-                          setState(() {
-                            deleted = true;
-                          });
-                          showTopSnackBar(
-                            Overlay.of(context),
-                            CustomSnackBar.success(
-                              message: "Success!",
-                              textAlign: TextAlign.left,
-                            ),
-                          );
-                        }
-                      }else if(result == 'addcom'){
-
-                        _showAddCommentDialog();
-
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      if(widget.candelete)
-                      const PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Text('Delete'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'addcom',
-                        child: Text('Add Comment'),
-                      ),
-                    ],
-                    icon: Icon(Icons.more_vert),
-                  ),
-                ],
-              ),
-              Divider(height: 10),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(widget.post.content!, style: TextStyle(fontSize: 15.0)),
-              ),
-              if (widget.post.documents != null && widget.post.documents!.isNotEmpty)
-                SizedBox(
-                  height: 150,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: widget.post.documents!.take(3).map((doc) {
-                        Uint8List? data = doc.data;
-                        return data != null
-                            ? Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: InstaImageViewer(
-                            child: Image.memory(data),
-                          ),
-                        )
-                            : SizedBox.shrink();
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              SizedBox(height: 10.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Text('${widget.likec} like/s', style: TextStyle(fontSize: 10.0)),
-                      Text('  •  '),
-                      Text('${widget.dislikec} dislike/s', style: TextStyle(fontSize: 10.0)),
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Text('${widget.post.comments!.length.toString()} comments  •  ', style: TextStyle(fontSize: 10.0)),
-                    ],
-                  ),
-                ],
-              ),
-              Divider(height: 30.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      //todo: like
-                      print("clicked");
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.thumbsUp, size: 20.0, color: widget.isliked ? Colors.green : Colors.black),
-                        SizedBox(width: 5.0),
-                        Text('Like', style: TextStyle(fontSize: 14.0)),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      //todo: dislike
-                      print("clicked");
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.thumbsDown, size: 20.0, color: widget.isdisliked ? Colors.red : Colors.black),
-                        SizedBox(width: 5.0),
-                        Text('Dislike', style: TextStyle(fontSize: 14.0)),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isCommentsVisible = !isCommentsVisible;
-                      });
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.comment, size: 20.0),
-                        SizedBox(width: 5.0),
-                        Text('Comments', style: TextStyle(fontSize: 14.0)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: isCommentsVisible && widget.post.comments!.isNotEmpty,
-                child: Column(
-                  children: widget.post.comments!.map((comment) {
-                    return ListTile(
-                      title: Text(comment.user!.name!),
-                      subtitle: Text(comment.content!),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
