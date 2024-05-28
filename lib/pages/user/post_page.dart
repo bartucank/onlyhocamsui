@@ -641,9 +641,11 @@ class _PostPageState extends State<PostPage>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 GestureDetector(
-                                  onTap: () {
-                                    //todo: like
-                                    updateLike(post.id!);
+                                  onTap: () async {
+                                    String result = await apiService.likePost(post.id);
+                                    if(result=='200'){
+                                      updateLike(post.id!);
+                                    }
                                     print("clicked");
                                   },
                                   child: Row(
@@ -655,9 +657,11 @@ class _PostPageState extends State<PostPage>
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
-                                    //todo: dislike
-                                    updateDisliked(post.id!);
+                                  onTap: () async {
+                                    String result = await apiService.dislikePost(post.id);
+                                    if(result=='200'){
+                                      updateDisliked(post.id!);
+                                    }
                                     print("clicked");
                                   },
                                   child: Row(

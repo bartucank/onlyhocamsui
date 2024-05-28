@@ -208,10 +208,11 @@ class ApiService {
 
 
 
-  Future<Map<String, dynamic>>  shareNote(dynamic body) async {
+  Future<String> shareNote(Map<String, dynamic> body) async {
     final jwtToken = await getJwtToken();
-    print("bis");
     String uri = '${Constants.apiBaseUrl}/api/user/note';
+
+    print('Sending JSON body: ${jsonEncode(body)}');
 
     final response = await http.post(
       Uri.parse(uri),
@@ -221,11 +222,12 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
-    if (response.statusCode == 401) {
-      throw CustomException("NEED_LOGIN");
+
+    if (response.statusCode == 200) {
+      return 'ok';
+    } else {
+      throw CustomException('-1');
     }
-    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-    return jsonResponse;
   }
 
   Future<int> uploadDocument(String filePath) async {

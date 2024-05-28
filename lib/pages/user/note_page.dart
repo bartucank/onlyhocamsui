@@ -188,6 +188,7 @@ class _NotePageState extends State<NotePage>
   String currentUserRole = "USER";
   TextEditingController keywordcontroller = TextEditingController();
   TextEditingController notenamecontroller = TextEditingController();
+  TextEditingController notecontentcontroller = TextEditingController();
 
   final listcontroller = ScrollController();
 
@@ -208,6 +209,11 @@ class _NotePageState extends State<NotePage>
                 decoration: InputDecoration(hintText: "Enter Note Title"),
               ),
               SizedBox(height: 20),
+              TextField(
+                controller: notecontentcontroller,
+                decoration: InputDecoration(hintText: "Enter short content"),
+              ),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   pickedFile = await FilePicker.platform.pickFiles(
@@ -224,10 +230,11 @@ class _NotePageState extends State<NotePage>
           ),
           actions: <Widget>[
             TextButton(
-                onPressed: () {
-                  Object a = saveMaterial();
+                onPressed: () async {
+                  Object a = await saveMaterial();
                   if(a != -1){
                     notenamecontroller.clear();
+                    notecontentcontroller.clear();
                     Navigator.of(context).pop();
                   }
                 },
@@ -252,6 +259,17 @@ class _NotePageState extends State<NotePage>
       );
       return -1;
     }
+    if(notecontentcontroller.text.isEmpty){
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message:
+          "Content name cannot be empty.",
+          textAlign: TextAlign.left,
+        ),
+      );
+      return -1;
+    }
     setState(() {
       isLoading = true;
     });
@@ -262,11 +280,19 @@ class _NotePageState extends State<NotePage>
       try {
         int docId = await apiService.uploadDocument(filePath);
 
-        if (docId != "-1") {
+        if (docId != -1) {
+          final title = notenamecontroller.text;
+          final content = notecontentcontroller.text;
 
-          //todo: add note service call with docId.
-          String result = "";//here apiservice should return "ok" if http status is 200. else return "-1"
-          if(result == "ok"){
+          Map<String, dynamic> body = {
+            'title': title,
+            'content': content,
+            'documentId': docId
+          };
+
+          String result = await apiService.shareNote(body);
+
+          if(result == 'ok'){
             showTopSnackBar(
               Overlay.of(context),
               const CustomSnackBar.success(
@@ -283,7 +309,6 @@ class _NotePageState extends State<NotePage>
               ),
             );
           }
-
         } else {
 
           showTopSnackBar(
