@@ -123,6 +123,19 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                         maxLines: 1, // Adjust the number of lines as needed
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                      child: Text(
+                        widget.note.content ?? 'N/A',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

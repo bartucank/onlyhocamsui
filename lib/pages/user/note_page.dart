@@ -245,6 +245,52 @@ class _NotePageState extends State<NotePage>
       },
     );
   }
+  void buypopup(BuildContext context,int idOfNote) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Buy Note"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              SizedBox(height: 20),
+              Text("You have to buy this note to open.")
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () async {
+                  String resultOfApicall = await apiService.purchaseNote(idOfNote);
+                  if(resultOfApicall == "Success"){
+                    NoteDTO detailedNote = await apiService.getnotebyid(idOfNote);
+                    Navigator.of(context).pop();
+                    bool isAdmin = false;
+                    if(currentUserRole == "ADMIN"){
+                      isAdmin = true;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NoteDetailScreen(note: detailedNote,isAdmin:isAdmin,isOwner:false),
+                      ),
+                    );
+                  }else{
+                    Navigator.of(context).pop();
+                    final snackBar = SnackBar(
+                      content: Text(resultOfApicall),
+                      duration: Duration(seconds: 5),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                },
+                child: Text("Buy Note")
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 
   Future<int> saveMaterial() async {
@@ -548,14 +594,19 @@ class _NotePageState extends State<NotePage>
 
                       return GestureDetector(
                       onTap: () async {
-                        print("clicked");
-                        NoteDTO detailedNote = await apiService.getnotebyid(currentbook.id!);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NoteDetailScreen(note: detailedNote,isAdmin:isAdmin,isOwner:isOwner),
-                          ),
-                        );
+                        print(currentbook.isPurchased);
+                        if(currentbook.isPurchased != null && currentbook.isPurchased!){
+                          NoteDTO detailedNote = await apiService.getnotebyid(currentbook.id!);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NoteDetailScreen(note: detailedNote,isAdmin:isAdmin,isOwner:isOwner),
+                            ),
+                          );
+                        }else{
+                          buypopup(context,currentbook.id!);
+                        }
+
                       },
                       child: Container(
                         decoration: BoxDecoration(

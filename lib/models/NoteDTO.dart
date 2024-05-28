@@ -10,6 +10,7 @@ class NoteDTO {
   int? id;
 
    String? title;
+   String? content;
   String? publishDate;
    String? formattedDate;
    UserDTO? user;
@@ -23,6 +24,7 @@ class NoteDTO {
   NoteDTO({
     this.id,
     this.title,
+    this.content,
     this.publishDate,
     this.formattedDate,
     this.user,

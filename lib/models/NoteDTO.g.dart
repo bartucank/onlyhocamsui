@@ -9,6 +9,7 @@ part of 'NoteDTO.dart';
 NoteDTO _$NoteDTOFromJson(Map<String, dynamic> json) => NoteDTO(
       id: (json['id'] as num?)?.toInt(),
       title: json['title'] as String?,
+      content: json['content'] as String?,
       publishDate: json['publishDate'] as String?,
       formattedDate: json['formattedDate'] as String?,
       user: json['user'] == null
@@ -27,6 +28,7 @@ NoteDTO _$NoteDTOFromJson(Map<String, dynamic> json) => NoteDTO(
 Map<String, dynamic> _$NoteDTOToJson(NoteDTO instance) => <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
+      'content': instance.content,
       'publishDate': instance.publishDate,
       'formattedDate': instance.formattedDate,
       'user': instance.user?.toJson(),

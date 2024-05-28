@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onlyhocamsui/pages/Onboarding/LoginScreen.dart';
 import 'package:onlyhocamsui/service/constants.dart';
 import '../../service/ApiService.dart';
+import '../admin/user_page.dart';
 import 'note_page.dart';
 import 'post_page.dart';
 
@@ -19,7 +21,7 @@ class SplashPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => LoginScreen()),
           );
         },
-        child: Icon(Icons.logout),
+        child: Icon(Icons.logout,color:Colors.white),
         backgroundColor: Constants.mainBlueColor,
       ),
       body: Center(
@@ -73,6 +75,46 @@ class SplashPage extends StatelessWidget {
                   ),
                 ),
             ],),
+            FutureBuilder<String?>(
+              future: apiService.getRole(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else {
+                  if (snapshot.hasError) {
+                    return Text('');
+                  } else {
+                    final role = snapshot.data;
+                    return role == "ADMIN"
+                        ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => UserPage()),
+                            );
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.peoplePulling,
+                                size: MediaQuery.of(context).size.width/2  -50,
+                                color: Constants.mainBlueColor,
+                              ),
+                              Text("Users",style: TextStyle(color: Constants.mainDarkColor,fontSize: 25),)
+                            ],
+                          ),
+                        ),
+
+                      ],)
+                        : SizedBox(); // Rol "ADMIN" değilse boş bir SizedBox döndür
+                  }
+                }
+              },
+            ),
 
           ],
         ),

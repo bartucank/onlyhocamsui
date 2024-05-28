@@ -111,7 +111,7 @@ class _PdfViewerState extends State<PdfViewer> {
                   onTap: (){
                     save();
                   },
-                  child: Icon(FontAwesomeIcons.save)),
+                  child: Icon(FontAwesomeIcons.solidFloppyDisk,color: Colors.white,)),
             )
           ],
         ),

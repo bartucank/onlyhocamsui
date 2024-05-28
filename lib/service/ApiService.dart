@@ -1,4 +1,5 @@
 import 'package:onlyhocamsui/models/NoteDTO.dart';
+import 'package:onlyhocamsui/models/UserDTOListResponse.dart';
 import 'package:path/path.dart';
 
 import 'dart:convert';
@@ -58,6 +59,27 @@ class ApiService {
   }
   Future<void> saveUserId(int token) async {
     await storage.write(key: 'userId', value: token.toString());
+  }
+
+  Future<String> purchaseNote(int? id) async {
+
+      final jwtToken = await getJwtToken();
+      final response = await http.post(
+        Uri.parse('${Constants.apiBaseUrl}/api/user/note/purchase?id=$id'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return jsonResponse['data']['msg'];
+      } else {
+        print(jsonResponse);
+        return jsonResponse['message'];
+      }
+
   }
 
   Future<Map<String, dynamic>> loginRequest(dynamic body) async {
@@ -182,8 +204,28 @@ class ApiService {
     if (response.statusCode == 401) {
       throw CustomException("NEED_LOGIN");
     }
+    print(response.body);
     Map<String, dynamic> jsonResponse = jsonDecode(response.body);
     return NoteDTOListResponse.fromJson(jsonResponse);
+
+  }
+
+  Future<UserDTOListResponse> getUsers() async {
+    final jwtToken = await getJwtToken();
+    String uri = '${Constants.apiBaseUrl}/api/admin/users';
+    final response = await http.get(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+    print(response.body);
+    return UserDTOListResponse.fromJson(jsonResponse);
 
   }
   Future<NoteDTO> getnotebyid(int id) async {
