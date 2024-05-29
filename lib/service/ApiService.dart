@@ -337,7 +337,75 @@ class ApiService {
     if (response.statusCode == 200) {
       return 'ok';
     } else {
+      return "-1";
+    }
+  }
+  Future<String> sharePost(Map<String, dynamic> body) async {
+    final jwtToken = await getJwtToken();
+    String uri = '${Constants.apiBaseUrl}/api/user/post';
+
+    print('Sending JSON body: ${jsonEncode(body)}');
+
+    final response = await http.post(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return 'ok';
+    } else {
       throw CustomException('-1');
+    }
+  }
+  Future<int> uploadImage(ImageFile imageFile) async {
+    try {
+      final jwtToken = await getJwtToken();
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${Constants.apiBaseUrl}/api/user/document'),
+      );
+      Map<String, String> headers = {
+        "Authorization": "Bearer $jwtToken",
+        "Content-type": "multipart/form-data"
+      };
+      if (imageFile.bytes != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'document',
+            imageFile.bytes!, // Image bytes
+            filename: '${imageFile.name}.${imageFile.extension}',
+          ),
+        );
+      } else if (imageFile.path != null) {
+        File file = File(imageFile.path!);
+        List<int> imageBytes = await file.readAsBytes();
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'document',
+            imageBytes, // Image bytes
+            filename: '${imageFile.name}.${imageFile.extension}',
+          ),
+        );
+      }
+      request.headers.addAll(headers);
+      var res = await request.send();
+      if (res.statusCode == 200) {
+        var responseString = await res.stream.bytesToString();
+        print(responseString);
+        var jsonResponse = json.decode(responseString);
+        print(jsonResponse);
+        var msgValue = (jsonResponse['data']['additionalInformation']);
+        return msgValue;
+      }
+      return -1;
+    } catch (e) {
+      print("cactched");
+      print(e);
+      return -1;
     }
   }
 

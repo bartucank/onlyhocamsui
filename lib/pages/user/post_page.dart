@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:onlyhocamsui/models/PostDTO.dart';
 import 'package:onlyhocamsui/models/PostDTOListResponse.dart';
+import 'package:onlyhocamsui/pages/user/share_post.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
@@ -496,12 +497,19 @@ class _PostPageState extends State<PostPage>
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white,
           //Colors.grey,
-          onTap: (index) {
+          onTap: (index) async {
             if (index == 0) {
               weSlideController.show();
             }
             if(index == 1){
-
+              Object a = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PostCreatePage()),
+              );
+              if(a == "s"){
+                refresh();
+              }
             }
           },
         ),
