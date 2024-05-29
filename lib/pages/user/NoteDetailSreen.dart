@@ -49,10 +49,61 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     PermissionStatus firststatus = await Permission.storage.request();
   }
 
+
+  void loadreviews(){
+    if(widget.note.reviews != null && widget.note.reviews!.isNotEmpty){
+      reviews.addAll(widget.note.reviews!);
+    }
+  }
+
+  void deletereview(int id){
+    setState(() {
+      reviews.removeWhere((element) => element.id==id);
+    });
+  }
+  void deletepopup(BuildContext context,int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete This Review"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              SizedBox(height: 20),
+              Text("Are You Sure?")
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () async {
+                  String resultOfApicall = await apiService.deleteReview(id);
+                  if(resultOfApicall == "ok"){
+                    Navigator.of(context).pop();
+                    deletereview(id);
+
+                  }else{
+                    Navigator.of(context).pop();
+                    final snackBar = SnackBar(
+                      content: Text("Unexpected Error"),
+                      duration: Duration(seconds: 5),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                },
+                child: Text("Delete It")
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     askperm();
+    loadreviews();
   }
 
   @override
@@ -273,6 +324,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                                                                   _reviewType);
                                                               Navigator.pop(context);
                                                               if(result == '200'){
+
                                                                 showTopSnackBar(
                                                                   Overlay.of(context),
                                                                   const CustomSnackBar.success(
@@ -286,7 +338,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                                                                   Overlay.of(context),
                                                                   const CustomSnackBar.error(
                                                                     message:
-                                                                    "Couldn't add reviewfff",
+                                                                    "Couldn't add review",
                                                                     textAlign: TextAlign.left,
                                                                   ),
                                                                 );
@@ -364,7 +416,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   Divider(
                     height: 20,
                   ),
-                  if (widget.note.reviews!.isNotEmpty)
+                  if (reviews.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
                       child: Row(
@@ -387,56 +439,64 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       ),
                     ),
                   Column(
-                    children: widget.note.reviews!.map((review) {
-                      return Container(
-                        child: CommentTreeWidget<Comment, Comment>(
-                          Comment(
-                            avatar: 'null',
-                            userName: review.user!.name,
-                            content: review.content ?? 'No comment',
-                          ),
-                          [],
-                          treeThemeData: TreeThemeData(
-                            lineColor: Constants.mainBlueColor,
-                            lineWidth: 0,
-                          ),
-                          avatarRoot: (context, data) => PreferredSize(
-                            child: CircleAvatar(
-                              radius: 18,
-                              backgroundColor: Colors.grey,
-                              backgroundImage:
-                              AssetImage('assets/images/default.png'),
+                    children: reviews.map((review) {
+                      return GestureDetector(
+                        onTap: (){
+                          if(review.canDelete != null && review.canDelete!){
+
+                            deletepopup(context,review.id!);
+                          }
+                        },
+                        child: Container(
+                          child: CommentTreeWidget<Comment, Comment>(
+                            Comment(
+                              avatar: 'null',
+                              userName: review.user!.name,
+                              content: review.content ?? 'No comment',
                             ),
-                            preferredSize: Size.fromRadius(18),
+                            [],
+                            treeThemeData: TreeThemeData(
+                              lineColor: Constants.mainBlueColor,
+                              lineWidth: 0,
+                            ),
+                            avatarRoot: (context, data) => PreferredSize(
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.grey,
+                                backgroundImage:
+                                AssetImage('assets/images/default.png'),
+                              ),
+                              preferredSize: Size.fromRadius(18),
+                            ),
+                            contentRoot: (context, data) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 4),
+                                        Text(
+                                          '${data.content}',
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
-                          contentRoot: (context, data) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 4),
-                                      Text(
-                                        '${data.content}',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                         ),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 16),
                       );
                     }).toList(),
                   )

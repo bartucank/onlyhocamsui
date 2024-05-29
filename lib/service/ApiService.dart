@@ -155,6 +155,75 @@ class ApiService {
     return CategoryDTOListResponse.fromJson(jsonResponse);
   }
 
+  Future<String> createCategory(String name) async{
+    final jwtToken = await getJwtToken();
+    final response = await http.post(
+      Uri.parse('${Constants.apiBaseUrl}/api/admin/category?name=$name'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    if(response.statusCode == 200){
+      return "ok";
+    }
+    return "-1";
+  }
+  Future<String> updatecategory(String name,int id) async{
+    final jwtToken = await getJwtToken();
+    final response = await http.put(
+      Uri.parse('${Constants.apiBaseUrl}/api/admin/category?name=$name&id=$id'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    if(response.statusCode == 200){
+      return "ok";
+    }
+    return "-1";
+  }
+  Future<String> deletecategory(int id) async{
+    final jwtToken = await getJwtToken();
+    final response = await http.delete(
+      Uri.parse('${Constants.apiBaseUrl}/api/admin/category?id=$id'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    if(response.statusCode == 200){
+      return "ok";
+    }
+    return "-1";
+  }
+  Future<String> deleteReview(int id) async{
+    final jwtToken = await getJwtToken();
+    final response = await http.delete(
+      Uri.parse('${Constants.apiBaseUrl}/api/user/note/review?id=$id'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 401) {
+      throw CustomException("NEED_LOGIN");
+    }
+    if(response.statusCode == 200){
+      return "ok";
+    }
+    return "-1";
+  }
+
   Future<PostDTOListResponse> getPosts(int limit, int offset, int id,String text) async {
     final jwtToken = await getJwtToken();
     print("bis");

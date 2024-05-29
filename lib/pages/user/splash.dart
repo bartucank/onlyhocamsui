@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onlyhocamsui/pages/Onboarding/LoginScreen.dart';
+import 'package:onlyhocamsui/pages/admin/category_page.dart';
 import 'package:onlyhocamsui/service/constants.dart';
 import '../../service/ApiService.dart';
 import '../admin/user_page.dart';
@@ -108,6 +109,25 @@ class SplashPage extends StatelessWidget {
                             ],
                           ),
                         ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => CategoryPage()),
+                            );
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.category,
+                                size: MediaQuery.of(context).size.width/2  -50,
+                                color: Constants.mainBlueColor,
+                              ),
+                              Text("Categories",style: TextStyle(color: Constants.mainDarkColor,fontSize: 25),)
+                            ],
+                          ),
+                        ),
 
                       ],)
                         :
@@ -115,25 +135,7 @@ class SplashPage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => UserPage()),
-                            );
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.person,
-                                size: MediaQuery.of(context).size.width/2  -50,
-                                color: Constants.mainBlueColor,
-                              ),
-                              Text("Profile",style: TextStyle(color: Constants.mainDarkColor,fontSize: 25),)
-                            ],
-                          ),
-                        ),
+
 
                       ],):SizedBox();
                   }

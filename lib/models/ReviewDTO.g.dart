@@ -14,6 +14,7 @@ ReviewDTO _$ReviewDTOFromJson(Map<String, dynamic> json) => ReviewDTO(
           : UserDTO.fromJson(json['user'] as Map<String, dynamic>),
       noteId: (json['noteId'] as num?)?.toInt(),
       type: json['type'] as String?,
+      canDelete: json['canDelete'] as bool?,
     );
 
 Map<String, dynamic> _$ReviewDTOToJson(ReviewDTO instance) => <String, dynamic>{
@@ -22,4 +23,5 @@ Map<String, dynamic> _$ReviewDTOToJson(ReviewDTO instance) => <String, dynamic>{
       'user': instance.user?.toJson(),
       'noteId': instance.noteId,
       'type': instance.type,
+      'canDelete': instance.canDelete,
     };

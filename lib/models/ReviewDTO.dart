@@ -10,6 +10,7 @@ class ReviewDTO {
    UserDTO? user;
    int? noteId;
    String? type;
+   bool? canDelete;
 
 
 
@@ -18,7 +19,8 @@ class ReviewDTO {
     this.content,
     this.user,
     this.noteId,
-    this.type
+    this.type,
+    this.canDelete
   });
 
   factory ReviewDTO.fromJson(Map<String,dynamic> data) => _$ReviewDTOFromJson(data);

@@ -595,6 +595,7 @@ class _NotePageState extends State<NotePage>
                       return GestureDetector(
                       onTap: () async {
                         print(currentbook.isPurchased);
+                        print(currentbook.isPurchased);
                         if(currentbook.isPurchased != null && currentbook.isPurchased!){
                           NoteDTO detailedNote = await apiService.getnotebyid(currentbook.id!);
                           Navigator.push(
