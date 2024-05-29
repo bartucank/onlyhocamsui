@@ -231,7 +231,6 @@ class _CategoryPageState extends State<CategoryPage>
             //Colors.grey,
             onTap: (index) {
               if (index == 0 || index == 1) {
-                //todo: add category api call
                 showcreatecategorypopup(context);
               }
             },

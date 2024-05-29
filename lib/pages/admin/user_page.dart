@@ -173,8 +173,6 @@ class _UserPageState extends State<UserPage>
                       UserDTO currentbook = UserDTOList[index];
                         return GestureDetector(
                         onTap: () async {
-                          print("delete");
-                          //todo: delete user
                           fetchUsers();
                         },
                         child: Container(
