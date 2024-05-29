@@ -550,7 +550,7 @@ class _NotePageState extends State<NotePage>
               BottomNavigationBarItem(
                   icon: Icon(Icons.search), label: 'Filter'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.add), label: 'Share Post'),
+                  icon: Icon(Icons.add), label: 'Share Note'),
             ],
             elevation: 0,
             backgroundColor: Constants.mainBlueColor,

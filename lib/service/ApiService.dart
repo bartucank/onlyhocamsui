@@ -428,6 +428,27 @@ class ApiService {
     }
   }
 
+  Future<String> addReview(int? id, String? content, String? type) async {
+    try {
+      final jwtToken = await getJwtToken();
+      final response = await http.post(
+        Uri.parse('${Constants.apiBaseUrl}/api/user/note/review?id=$id&content=$content&type=$type'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return '200';
+      } else {
+        throw CustomException('Failed to add review: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw CustomException('Error adding review: $e');
+    }
+  }
+
 
 
 
