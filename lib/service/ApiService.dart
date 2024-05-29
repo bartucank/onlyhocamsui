@@ -518,6 +518,26 @@ class ApiService {
     }
   }
 
+  Future<String> deleteNote(int? id) async {
+    try {
+      final jwtToken = await getJwtToken();
+      final response = await http.delete(
+        Uri.parse('${Constants.apiBaseUrl}/api/user/note/?id=$id'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return 'ok';
+      } else {
+        throw CustomException('Failed to delete note: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw CustomException('Error deleting note: $e');
+    }
+  }
 
 
 

@@ -120,7 +120,29 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           if (widget.isAdmin || widget.isOwner)
             FloatingActionButton(
               onPressed: () async {
-                //todo: delete api call
+                print("sosis");
+                String result = await apiService.deleteNote(widget.note.id);
+                print("salam");
+                if(result == 'ok'){
+                  showTopSnackBar(
+                    Overlay.of(context),
+                    const CustomSnackBar.success(
+                      message:
+                      "Note deleted.",
+                      textAlign: TextAlign.left,
+                    ),
+                  );
+                  Navigator.pop(context);
+                }else{
+                  showTopSnackBar(
+                    Overlay.of(context),
+                    const CustomSnackBar.error(
+                      message:
+                      "Couldn't delete note.",
+                      textAlign: TextAlign.left,
+                    ),
+                  );
+                }
               },
               child: Icon(FontAwesomeIcons.trash, color: Colors.red),
               backgroundColor: Constants.whiteColor,
