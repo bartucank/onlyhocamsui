@@ -539,7 +539,26 @@ class ApiService {
     }
   }
 
+  Future<String> approveNote(int? id) async {
+    try {
+      final jwtToken = await getJwtToken();
+      final response = await http.post(
+        Uri.parse('${Constants.apiBaseUrl}/api/admin/note/?id=$id'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
 
+      if (response.statusCode == 200) {
+        return 'ok';
+      } else {
+        throw CustomException('Failed to approve note: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw CustomException('Error approving note: $e');
+    }
+  }
 
 
 }

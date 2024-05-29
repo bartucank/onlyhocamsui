@@ -425,7 +425,26 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                             ),
                           ),
                           onPressed: () async {
-                            //todo: approve api call
+                            String result = await apiService.approveNote(widget.note.id);
+                            if(result == 'ok'){
+                              showTopSnackBar(
+                                Overlay.of(context),
+                                const CustomSnackBar.success(
+                                  message:
+                                  "Note approved.",
+                                  textAlign: TextAlign.left,
+                                ),
+                              );
+                            }else{
+                              showTopSnackBar(
+                                Overlay.of(context),
+                                const CustomSnackBar.error(
+                                  message:
+                                  "Couldn't approve note.",
+                                  textAlign: TextAlign.left,
+                                ),
+                              );
+                            }
                           },
                           icon: const Icon(
                             FontAwesomeIcons.check,
